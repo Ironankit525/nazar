@@ -19,6 +19,8 @@ One YAML file. Zero dollars. Powered by [BharatCode](https://bharatcode.ai).
 <p align="center"><img src="docs/assets/demo.gif" alt="Nazar reviewing a pull request" width="760" /></p>
 -->
 
+**👉 See it live:** [demo pull requests in nazar-playground](https://github.com/Ironankit525/nazar-playground/pulls): SQL injection, a leaked key, a missing `await`, a Hinglish review, and a clean refactor that gets zero comments.
+
 *Nazar* (नज़र) means "a watchful eye". It reads every pull request and push, catches real bugs and security holes, and suggests fixes you can apply in one click. It also stops you from leaking API keys.
 
 AI code reviewers usually cost $15–30 a month per developer, which leaves out most students and indie developers in India. Nazar runs on BharatCode's flat-rate API, which is **free for students**, and you can host it yourself as a GitHub Action. There's no server and no subscription, and your code only goes to BharatCode.
