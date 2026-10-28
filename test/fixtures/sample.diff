@@ -1,0 +1,58 @@
+diff --git a/src/db.js b/src/db.js
+index 1111111..2222222 100644
+--- a/src/db.js
++++ b/src/db.js
+@@ -1,6 +1,8 @@
+ const express = require('express');
+ const db = require('./pool');
+ 
+ async function getUser(req, res) {
+-  const rows = await db.query('SELECT * FROM users WHERE name = $1', [req.query.name]);
++  const name = req.query.name;
++  const rows = await db.query("SELECT * FROM users WHERE name = '" + name + "'");
++  const apiKey = "{{GITHUB_TOKEN}}";
+   res.json(rows);
+ }
+@@ -20,3 +22,4 @@ function list() {
+   return items;
+ }
++module.exports = { getUser, list };
+diff --git a/package-lock.json b/package-lock.json
+index 3333333..4444444 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,3 +1,3 @@
+ {
+-  "version": "1.0.0"
++  "version": "1.0.1"
+ }
+diff --git a/old.txt b/new.txt
+similarity index 90%
+rename from old.txt
+rename to new.txt
+index 5555555..6666666 100644
+--- a/old.txt
++++ b/new.txt
+@@ -1,2 +1,2 @@
+ hello
+-world
++there
+diff --git a/logo.png b/logo.png
+new file mode 100644
+index 0000000..7777777
+Binary files /dev/null and b/logo.png differ
+diff --git a/gone.py b/gone.py
+deleted file mode 100644
+index 8888888..0000000
+--- a/gone.py
++++ /dev/null
+@@ -1,2 +0,0 @@
+-print("bye")
+-print("bye")
+diff --git a/.env b/.env
+new file mode 100644
+index 0000000..9999999
+--- /dev/null
++++ b/.env
+@@ -0,0 +1 @@
++DATABASE_URL={{DB_URL}}

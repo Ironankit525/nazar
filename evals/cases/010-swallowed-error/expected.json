@@ -1,0 +1,10 @@
+{
+  "description": "Payment failure swallowed, returns undefined",
+  "expect": [
+    {
+      "path": "src/payments/charge.js",
+      "line": 6,
+      "category": "error-handling"
+    }
+  ]
+}

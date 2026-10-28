@@ -1,0 +1,70 @@
+name: 'Nazar AI Code Review'
+description: 'Free AI code review + secret scanning for every developer. Two-pass review powered by BharatCode.'
+author: 'Ankit Kumar'
+branding:
+  icon: 'eye'
+  color: 'orange'
+
+# Inputs without a default fall back to .github/nazar.yml, then to built-in defaults.
+inputs:
+  bharatcode-api-key:
+    description: 'BharatCode API key (store it as a repository secret). Without it, only secret/repo checks run.'
+    required: false
+  github-token:
+    description: 'Token used to read the diff and post comments.'
+    required: false
+    default: '${{ github.token }}'
+  mode:
+    description: 'auto (from the event) | pr | push'
+    required: false
+    default: 'auto'
+  model:
+    description: 'BharatCode model id. Default: qwen-3.8-27b'
+    required: false
+  base-url:
+    description: 'API base URL. Default: https://bharatcode.ai/api/model/v1'
+    required: false
+  language:
+    description: 'Review language: en | hinglish. Default: en'
+    required: false
+  max-comments:
+    description: 'Maximum inline comments per review. Default: 10'
+    required: false
+  min-severity:
+    description: 'Hide findings below: low | medium | high | critical. Default: medium'
+    required: false
+  fail-on:
+    description: 'Fail the job on findings at or above: none | low | medium | high | critical'
+    required: false
+    default: 'none'
+  verify:
+    description: 'Run the second-pass verifier that removes false positives. Default: true'
+    required: false
+  summary:
+    description: 'Post a change summary and walkthrough. Default: true'
+    required: false
+  hackathon-checks:
+    description: 'Check BharatCode Build League requirements (BharatCode.txt, README). Default: true'
+    required: false
+  incremental:
+    description: 'On new PR commits, review only what changed since the last review. Default: true'
+    required: false
+  ignore:
+    description: 'Extra glob patterns to skip, comma or newline separated.'
+    required: false
+  config-path:
+    description: 'Path to the config file.'
+    required: false
+    default: '.github/nazar.yml'
+
+outputs:
+  findings-count:
+    description: 'Number of findings reported.'
+  critical-count:
+    description: 'Number of critical findings.'
+  ai-status:
+    description: 'ok | partial | unavailable | disabled'
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'

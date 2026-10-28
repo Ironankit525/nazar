@@ -1,0 +1,10 @@
+{
+  "description": "Shell command built from request body",
+  "expect": [
+    {
+      "path": "server/convert.js",
+      "line": 5,
+      "category": "security"
+    }
+  ]
+}

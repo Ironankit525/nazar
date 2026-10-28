@@ -1,0 +1,9 @@
+# Nazar configuration: https://github.com/Ironankit525/nazar#configuration
+language: en # en | hinglish
+max_comments: 10
+min_severity: medium # low | medium | high | critical
+# focus: [security, bugs]
+# ignore:
+#   - "docs/**"
+# instructions: |
+#   This is a Flask app using SQLAlchemy. Never use raw SQL strings.

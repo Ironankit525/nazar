@@ -1,0 +1,22 @@
+# Stricter setup: Hinglish reviews, fail the check on high/critical findings, PRs only.
+name: Nazar Review (strict)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: Ironankit525/nazar@v1
+        with:
+          bharatcode-api-key: ${{ secrets.BHARATCODE_API_KEY }}
+          language: hinglish
+          fail-on: high
+          min-severity: medium

@@ -1,0 +1,14 @@
+diff --git a/server/convert.js b/server/convert.js
+new file mode 100644
+--- /dev/null
++++ b/server/convert.js
+@@ -0,0 +1,9 @@
++const { exec } = require('child_process');
++
++app.post('/convert', (req, res) => {
++  const file = req.body.filename;
++  exec(`convert uploads/${file} -resize 50% out/${file}`, (err) => {
++    if (err) return res.status(500).send('failed');
++    res.send('ok');
++  });
++});

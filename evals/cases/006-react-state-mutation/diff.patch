@@ -1,0 +1,25 @@
+diff --git a/src/components/TodoList.jsx b/src/components/TodoList.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/components/TodoList.jsx
+@@ -0,0 +1,20 @@
++import { useState } from 'react';
++
++export default function TodoList() {
++  const [items, setItems] = useState([]);
++  const [text, setText] = useState('');
++
++  function addItem() {
++    items.push({ id: Date.now(), text });
++    setItems(items);
++    setText('');
++  }
++
++  return (
++    <div>
++      <input value={text} onChange={(e) => setText(e.target.value)} />
++      <button onClick={addItem}>Add</button>
++      <ul>{items.map((i) => <li key={i.id}>{i.text}</li>)}</ul>
++    </div>
++  );
++}

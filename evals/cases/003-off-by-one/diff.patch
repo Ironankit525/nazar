@@ -1,0 +1,11 @@
+diff --git a/scripts/report.py b/scripts/report.py
+new file mode 100644
+--- /dev/null
++++ b/scripts/report.py
+@@ -0,0 +1,6 @@
++def print_scores(scores):
++    total = 0
++    for i in range(len(scores) + 1):
++        total += scores[i]
++        print(f"#{i + 1}: {scores[i]}")
++    return total / len(scores)

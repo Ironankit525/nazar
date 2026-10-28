@@ -1,0 +1,18 @@
+diff --git a/app/validators.py b/app/validators.py
+new file mode 100644
+--- /dev/null
++++ b/app/validators.py
+@@ -0,0 +1,13 @@
++import re
++
++EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
++
++
++def normalize_email(value: str) -> str:
++    """Trim and lowercase an email, raising ValueError if it is invalid."""
++    if not isinstance(value, str):
++        raise ValueError("email must be a string")
++    email = value.strip().lower()
++    if not EMAIL_RE.match(email):
++        raise ValueError(f"invalid email: {email!r}")
++    return email

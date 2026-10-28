@@ -1,0 +1,4 @@
+Project: Nazar - free AI code review for every Indian developer
+Track: Coding & developer tools
+Built on: BharatCode model API (qwen-3.8-27b)
+Repository: https://github.com/Ironankit525/nazar

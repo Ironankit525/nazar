@@ -1,0 +1,10 @@
+{
+  "description": "find() may return undefined",
+  "expect": [
+    {
+      "path": "src/billing.ts",
+      "line": 5,
+      "category": "bug"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "description": "Safe refactor: expect no findings",
+  "expect": []
+}

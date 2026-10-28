@@ -1,0 +1,24 @@
+name: Bug report
+description: Something went wrong, or Nazar posted a wrong/noisy comment
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the Action log or CLI output. Remove any secrets first.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: input
+    id: where
+    attributes:
+      label: Link to the PR/commit (if public)
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where
+      options: [GitHub Action (PR), GitHub Action (push), CLI]

@@ -1,0 +1,10 @@
+{
+  "description": "Mutating state then setting same reference",
+  "expect": [
+    {
+      "path": "src/components/TodoList.jsx",
+      "line": 8,
+      "category": "bug"
+    }
+  ]
+}

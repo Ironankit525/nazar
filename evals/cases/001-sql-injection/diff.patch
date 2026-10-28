@@ -1,0 +1,16 @@
+diff --git a/src/routes/users.js b/src/routes/users.js
+new file mode 100644
+--- /dev/null
++++ b/src/routes/users.js
+@@ -0,0 +1,11 @@
++const express = require('express');
++const db = require('../db');
++const router = express.Router();
++
++router.get('/search', async (req, res) => {
++  const name = req.query.name;
++  const rows = await db.query(`SELECT id, email FROM users WHERE name = '${name}'`);
++  res.json(rows);
++});
++
++module.exports = router;

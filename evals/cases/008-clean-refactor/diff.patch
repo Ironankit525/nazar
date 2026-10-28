@@ -1,0 +1,12 @@
+diff --git a/src/utils/format.ts b/src/utils/format.ts
+--- a/src/utils/format.ts
++++ b/src/utils/format.ts
+@@ -1,5 +1,5 @@
++const inr = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
++
+ export function formatPrice(amount: number): string {
+-  const rupees = Math.floor(amount);
+-  const paise = Math.round((amount - rupees) * 100);
+-  return '₹' + rupees + '.' + (paise < 10 ? '0' + paise : paise);
++  return inr.format(amount);
+ }

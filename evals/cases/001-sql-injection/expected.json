@@ -1,0 +1,10 @@
+{
+  "description": "Template-literal SQL with user input",
+  "expect": [
+    {
+      "path": "src/routes/users.js",
+      "line": 7,
+      "category": "security"
+    }
+  ]
+}

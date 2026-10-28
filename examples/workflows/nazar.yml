@@ -1,0 +1,29 @@
+name: Nazar Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main, master]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write # commit comments for push reviews
+  pull-requests: write # PR review comments
+  issues: write # replies to @nazar commands
+
+concurrency:
+  group: nazar-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Skip comments that are not "@nazar ..." commands on pull requests.
+    if: github.event_name != 'issue_comment' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '@nazar'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: Ironankit525/nazar@v1
+        with:
+          bharatcode-api-key: ${{ secrets.BHARATCODE_API_KEY }}

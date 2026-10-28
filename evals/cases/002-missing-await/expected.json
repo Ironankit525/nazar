@@ -1,0 +1,10 @@
+{
+  "description": "Promise used as a value",
+  "expect": [
+    {
+      "path": "src/services/profile.ts",
+      "line": 4,
+      "category": "bug"
+    }
+  ]
+}

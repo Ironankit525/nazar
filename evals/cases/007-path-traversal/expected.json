@@ -1,0 +1,10 @@
+{
+  "description": "User-controlled path joined to upload dir",
+  "expect": [
+    {
+      "path": "server/files.py",
+      "line": 10,
+      "category": "security"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "description": "range(len+1) IndexError",
+  "expect": [
+    {
+      "path": "scripts/report.py",
+      "line": 3,
+      "category": "bug"
+    }
+  ]
+}

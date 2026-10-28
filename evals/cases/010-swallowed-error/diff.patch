@@ -1,0 +1,18 @@
+diff --git a/src/payments/charge.js b/src/payments/charge.js
+--- a/src/payments/charge.js
++++ b/src/payments/charge.js
+@@ -1,7 +1,11 @@
+ async function chargeOrder(order, gateway) {
+-  const result = await gateway.charge(order.amount, order.token);
+-  await markPaid(order.id, result.id);
+-  return result;
++  try {
++    const result = await gateway.charge(order.amount, order.token);
++    await markPaid(order.id, result.id);
++    return result;
++  } catch (e) {
++    console.log('charge failed');
++  }
+ }
+ 
+ module.exports = { chargeOrder };
