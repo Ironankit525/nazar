@@ -11,6 +11,8 @@ import { BharatCodeClient, mergeConfig, parseGitDiff, runReview, type Finding } 
 interface Expected {
   description: string;
   expect: { path: string; line: number; category?: string }[];
+  /** Real issues outside the answer key: neither required nor counted as false positives. */
+  acceptable?: { path: string; line: number; note?: string }[];
 }
 
 const LINE_TOLERANCE = 3;
@@ -41,6 +43,7 @@ const llm = new BharatCodeClient({
 let tp = 0;
 let fp = 0;
 let fn = 0;
+let extra = 0;
 let cleanNoise = 0;
 const rows: string[] = [];
 const report: unknown[] = [];
@@ -69,6 +72,11 @@ for (const name of readdirSync(casesDir).sort()) {
       caseTp++;
     }
   }
+  const near = (f: Finding, e: { path: string; line: number }) =>
+    f.path === e.path && Math.abs(f.line - e.line) <= LINE_TOLERANCE;
+  const accepted = ai.filter((f) => !matched.has(f) && (expected.acceptable ?? []).some((e) => near(f, e)));
+  accepted.forEach((f) => matched.add(f));
+  extra += accepted.length;
   const caseFn = expected.expect.length - caseTp;
   const caseFp = ai.length - matched.size;
   tp += caseTp;
@@ -106,10 +114,10 @@ const recall = tp + fn ? tp / (tp + fn) : 1;
 console.log('\n──────────────────────────────────────────');
 console.log(`Model: ${process.env.NAZAR_MODEL ?? config.model}  verifier: ${verify ? 'on' : 'off'}`);
 console.log(
-  `Precision: ${(precision * 100).toFixed(0)}%   Recall: ${(recall * 100).toFixed(0)}%   Findings on clean code: ${cleanNoise}`,
+  `Precision: ${(precision * 100).toFixed(0)}%   Recall: ${(recall * 100).toFixed(0)}%   Findings on clean code: ${cleanNoise}   Extra real issues: ${extra}`,
 );
 
 mkdirSync(join(import.meta.dirname, 'results'), { recursive: true });
 const out = join(import.meta.dirname, 'results', `${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
-writeFileSync(out, JSON.stringify({ precision, recall, cleanNoise, verify, cases: report }, null, 2));
+writeFileSync(out, JSON.stringify({ precision, recall, cleanNoise, extra, verify, cases: report }, null, 2));
 console.log(`Saved ${out}`);

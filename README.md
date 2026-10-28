@@ -170,11 +170,13 @@ BHARATCODE_API_KEY=... npm run eval            # precision / recall / noise on c
 BHARATCODE_API_KEY=... npm run eval -- --no-verify
 ```
 
-<!-- TODO: paste your latest eval numbers here, e.g.
-| Model | Verifier | Precision | Recall | Findings on clean code |
-|---|---|---|---|---|
-| qwen-3.8-27b | on | xx% | xx% | 0 |
--->
+Latest run (`qwen-3.8-27b` on BharatCode, verifier on, 29 Oct 2026):
+
+| Planted bugs caught | False positives | Comments on clean code | Extra real issues found |
+|---|---|---|---|
+| **9 / 9 (100%)**, all on the right line | **0** | **0** | 2 |
+
+The 2 extras weren't in the answer key but are genuine: an unhandled rejection in an Express 4 async route, and a division by zero on an empty list. A typical review takes about 30–90 seconds, depending on BharatCode's queue. This is a single run, so re-run it yourself to check.
 
 ## 🔒 Security & privacy
 

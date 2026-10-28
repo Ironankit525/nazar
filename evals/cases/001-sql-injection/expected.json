@@ -6,5 +6,12 @@
       "line": 7,
       "category": "security"
     }
+  ],
+  "acceptable": [
+    {
+      "path": "src/routes/users.js",
+      "line": 7,
+      "note": "Express 4 does not catch rejected async handlers"
+    }
   ]
 }

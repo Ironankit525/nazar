@@ -6,5 +6,12 @@
       "line": 3,
       "category": "bug"
     }
+  ],
+  "acceptable": [
+    {
+      "path": "scripts/report.py",
+      "line": 6,
+      "note": "ZeroDivisionError when scores is empty"
+    }
   ]
 }

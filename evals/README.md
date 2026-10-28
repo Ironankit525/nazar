@@ -6,6 +6,7 @@ Each case in `cases/` is a realistic change with a known answer:
 - `expected.json`: `{ "expect": [{ "path", "line", "category" }] }`. An empty `expect` means the code is clean and Nazar should stay quiet.
 
 A finding counts as a hit when the path matches and the line is within ±3 of the expected line.
+`acceptable` (optional) lists real issues that aren't the point of the case. Findings there count as neither hits nor false positives.
 
 ```bash
 BHARATCODE_API_KEY=... npm run eval               # all cases
