@@ -11,6 +11,7 @@ import type { CompletionRequest, LLMClient } from '../src/core/llm/client.js';
 const j = (...parts: string[]) => parts.join('');
 export const FAKE = {
   github: j('gh', 'p_', 'abcdefghijklmnopqrstuvwxyz0123456789'),
+  bharatcode: j('bc', '_live_', '0123456789abcdef0123456789abcdef', '_', 'AbCdEfGhIjKlMnOpQrStUvWxYz012345'),
   aws: j('AK', 'IA', 'IOSFODNN7EXAMPLF'),
   google: j('AI', 'za', 'SyD3f9kLmN0pQrStUvWxYz1234567890abc'),
   openai: j('sk', '-proj-', 'abcdefghijklmnopqrstuvwxyz0123456789ABCD'),

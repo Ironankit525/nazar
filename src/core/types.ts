@@ -79,6 +79,8 @@ export interface ReviewResult {
   aiStatus: AiStatus;
   /** Findings dropped by the verifier pass. */
   rejectedByVerifier: number;
+  /** Set when the API key or plan was rejected, so users see the real reason instead of "busy". */
+  aiError?: string;
   durationMs: number;
 }
 

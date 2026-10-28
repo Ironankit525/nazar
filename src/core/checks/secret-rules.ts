@@ -16,6 +16,11 @@ export const SECRET_RULES: SecretRule[] = [
     name: 'Private key',
     pattern: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----/,
   },
+  {
+    id: 'bharatcode-key',
+    name: 'BharatCode API key',
+    pattern: /\bbc_(?:live|test)_[A-Za-z0-9]{24,}_[A-Za-z0-9_-]{20,}/,
+  },
   { id: 'github-token', name: 'GitHub token', pattern: /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}\b/ },
   { id: 'github-pat', name: 'GitHub fine-grained token', pattern: /\bgithub_pat_[A-Za-z0-9_]{60,}\b/ },
   { id: 'anthropic-key', name: 'Anthropic API key', pattern: /\bsk-ant-[A-Za-z0-9_-]{20,}/ },

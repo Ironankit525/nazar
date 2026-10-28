@@ -80,6 +80,20 @@ describe('runReview', () => {
     expect(result.summary).toBeUndefined();
   });
 
+  it('reports a rejected key/plan clearly and stops calling the API', async () => {
+    const { LLMError } = await import('../src/core/llm/retry.js');
+    const llm = new FakeLLM({
+      review: () => {
+        throw new LLMError('402 subscription required', 402);
+      },
+    });
+    const files = [...sampleFiles(), { path: 'b.ts', status: 'added' as const, patch: '@@ -0,0 +1 @@\n+x' }];
+    const result = await runReview({ files, config: config({ chunk_tokens: 1000, concurrency: 1 }), llm });
+    expect(result.aiStatus).toBe('unavailable');
+    expect(result.aiError).toContain('verify your student email');
+    expect(llm.calls).toHaveLength(1);
+  });
+
   it('runs without an LLM at all', async () => {
     const result = await runReview({ files: sampleFiles(), config: config() });
     expect(result.aiStatus).toBe('disabled');

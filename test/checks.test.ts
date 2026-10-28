@@ -7,6 +7,7 @@ import { FAKE, sampleFiles } from './helpers.js';
 describe('secret scanner', () => {
   const positives: [string, string][] = [
     ['github-token', `token = "${FAKE.github}"`],
+    ['bharatcode-key', `BHARATCODE_API_KEY=${FAKE.bharatcode}`],
     ['aws-access-key', `AWS_ACCESS_KEY_ID=${FAKE.aws}`],
     ['google-api-key', `const key = "${FAKE.google}"`],
     ['openai-key', `OPENAI_API_KEY=${FAKE.openai}`],

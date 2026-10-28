@@ -115,7 +115,13 @@ export function renderSummary(result: ReviewResult, opts: SummaryOptions = {}): 
       '',
     );
 
-  if (result.aiStatus === 'unavailable') {
+  if (result.aiError) {
+    out.push(
+      '> [!WARNING]',
+      `> AI review skipped. ${sanitize(result.aiError)} Secret and repo checks still ran.`,
+      '',
+    );
+  } else if (result.aiStatus === 'unavailable') {
     out.push(
       '> [!WARNING]',
       '> AI review was skipped because BharatCode was busy or unreachable. Secret and repo checks still ran. Re-run the job to retry.',

@@ -85,7 +85,8 @@ export function printResult(result: ReviewResult, label: string): void {
 
   printChecks(result.checks);
 
-  if (result.aiStatus === 'unavailable')
+  if (result.aiError) console.log(pc.yellow(`AI review skipped: ${result.aiError}\n`));
+  else if (result.aiStatus === 'unavailable')
     console.log(pc.yellow('AI review skipped: BharatCode was busy or unreachable. Try again in a minute.\n'));
   else if (result.aiStatus === 'partial')
     console.log(pc.yellow('Some files were not AI-reviewed because BharatCode was busy.\n'));

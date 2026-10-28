@@ -53,6 +53,10 @@ for (const name of readdirSync(casesDir).sort()) {
   const started = Date.now();
   const result = await runReview({ files, config, llm });
   const ai = result.findings.filter((f) => f.source === 'ai');
+  if (result.aiError) {
+    console.error(result.aiError);
+    process.exit(1);
+  }
 
   const matched = new Set<Finding>();
   let caseTp = 0;

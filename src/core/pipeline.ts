@@ -5,7 +5,7 @@ import { chunkFiles } from './diff/chunk.js';
 import { filterFiles } from './diff/filter.js';
 import { parseFile } from './diff/parse.js';
 import type { LLMClient } from './llm/client.js';
-import { DeadlineError } from './llm/retry.js';
+import { DeadlineError, LLMError } from './llm/retry.js';
 import { finalizeFindings } from './review/postprocess.js';
 import { reviewChunk } from './review/reviewer.js';
 import { summarizeChange } from './review/summarizer.js';
@@ -54,6 +54,18 @@ export async function mapLimit<T, R>(
 
 const CONTEXT_FILE_LIMIT = 12;
 
+/** Key/plan problems (401/402/403) will fail every request the same way, unlike "busy" errors. */
+function isAccessError(err: unknown): boolean {
+  return err instanceof LLMError && (err.status === 401 || err.status === 402 || err.status === 403);
+}
+
+function accessErrorMessage(err: LLMError): string {
+  if (err.status === 402) {
+    return `BharatCode API access needs an active plan: verify your student email for free access at https://bharatcode.ai/account, or subscribe to Lite. (${err.message})`;
+  }
+  return `BharatCode rejected the API key (${err.message}). Check the BHARATCODE_API_KEY secret.`;
+}
+
 export async function runReview(input: ReviewInput): Promise<ReviewResult> {
   const started = Date.now();
   const { config, llm } = input;
@@ -79,6 +91,7 @@ export async function runReview(input: ReviewInput): Promise<ReviewResult> {
   let aiStatus: AiStatus = 'disabled';
   let rejectedByVerifier = 0;
   let summary: ChangeSummary | undefined;
+  let aiError: string | undefined;
 
   if (llm && reviewable.length > 0) {
     const contents = new Map<string, string>();
@@ -98,6 +111,10 @@ export async function runReview(input: ReviewInput): Promise<ReviewResult> {
     log.info(`Split into ${chunks.length} chunk(s) for review.`);
     let failed = 0;
     const perChunk = await mapLimit(chunks, config.concurrency, async (chunk, i) => {
+      if (aiError) {
+        failed++; // the key was rejected; don't burn more requests
+        return [];
+      }
       try {
         const found = await reviewChunk(chunk, llm, config, meta, log);
         if (!config.verify || found.length === 0) return found;
@@ -106,10 +123,12 @@ export async function runReview(input: ReviewInput): Promise<ReviewResult> {
         return kept;
       } catch (err) {
         failed++;
-        log.warn(`Chunk ${i + 1}/${chunks.length} could not be reviewed: ${(err as Error).message}`);
+        if (isAccessError(err)) aiError ??= accessErrorMessage(err as LLMError);
+        else log.warn(`Chunk ${i + 1}/${chunks.length} could not be reviewed: ${(err as Error).message}`);
         return [];
       }
     });
+    if (aiError) log.warn(aiError);
     aiFindings = perChunk.flat();
     aiStatus = failed === 0 ? 'ok' : failed === chunks.length ? 'unavailable' : 'partial';
 
@@ -132,6 +151,7 @@ export async function runReview(input: ReviewInput): Promise<ReviewResult> {
     reviewedFiles: reviewable.map((f) => f.path),
     aiStatus,
     rejectedByVerifier,
+    aiError,
     durationMs: Date.now() - started,
   };
 }

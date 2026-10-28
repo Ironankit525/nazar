@@ -30715,6 +30715,11 @@ var SECRET_RULES = [
     name: "Private key",
     pattern: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----/
   },
+  {
+    id: "bharatcode-key",
+    name: "BharatCode API key",
+    pattern: /\bbc_(?:live|test)_[A-Za-z0-9]{24,}_[A-Za-z0-9_-]{20,}/
+  },
   { id: "github-token", name: "GitHub token", pattern: /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}\b/ },
   { id: "github-pat", name: "GitHub fine-grained token", pattern: /\bgithub_pat_[A-Za-z0-9_]{60,}\b/ },
   { id: "anthropic-key", name: "Anthropic API key", pattern: /\bsk-ant-[A-Za-z0-9_-]{20,}/ },
@@ -34523,6 +34528,15 @@ async function mapLimit(items, limit, fn) {
   return results;
 }
 var CONTEXT_FILE_LIMIT = 12;
+function isAccessError(err) {
+  return err instanceof LLMError && (err.status === 401 || err.status === 402 || err.status === 403);
+}
+function accessErrorMessage(err) {
+  if (err.status === 402) {
+    return `BharatCode API access needs an active plan: verify your student email for free access at https://bharatcode.ai/account, or subscribe to Lite. (${err.message})`;
+  }
+  return `BharatCode rejected the API key (${err.message}). Check the BHARATCODE_API_KEY secret.`;
+}
 async function runReview(input2) {
   const started = Date.now();
   const { config: config2, llm } = input2;
@@ -34544,6 +34558,7 @@ async function runReview(input2) {
   let aiStatus = "disabled";
   let rejectedByVerifier = 0;
   let summary;
+  let aiError;
   if (llm && reviewable.length > 0) {
     const contents = /* @__PURE__ */ new Map();
     if (input2.getFileContent) {
@@ -34560,6 +34575,10 @@ async function runReview(input2) {
     log.info(`Split into ${chunks.length} chunk(s) for review.`);
     let failed = 0;
     const perChunk = await mapLimit(chunks, config2.concurrency, async (chunk, i) => {
+      if (aiError) {
+        failed++;
+        return [];
+      }
       try {
         const found = await reviewChunk(chunk, llm, config2, meta3, log);
         if (!config2.verify || found.length === 0) return found;
@@ -34568,10 +34587,12 @@ async function runReview(input2) {
         return kept;
       } catch (err) {
         failed++;
-        log.warn(`Chunk ${i + 1}/${chunks.length} could not be reviewed: ${err.message}`);
+        if (isAccessError(err)) aiError ??= accessErrorMessage(err);
+        else log.warn(`Chunk ${i + 1}/${chunks.length} could not be reviewed: ${err.message}`);
         return [];
       }
     });
+    if (aiError) log.warn(aiError);
     aiFindings = perChunk.flat();
     aiStatus = failed === 0 ? "ok" : failed === chunks.length ? "unavailable" : "partial";
     if (config2.summary && aiStatus !== "unavailable") {
@@ -34592,6 +34613,7 @@ async function runReview(input2) {
     reviewedFiles: reviewable.map((f) => f.path),
     aiStatus,
     rejectedByVerifier,
+    aiError,
     durationMs: Date.now() - started
   };
 }
@@ -34899,7 +34921,9 @@ function printResult(result, label) {
     findings.sort((a, b) => a.line - b.line).forEach(printFinding);
   }
   printChecks(result.checks);
-  if (result.aiStatus === "unavailable")
+  if (result.aiError) console.log(import_picocolors.default.yellow(`AI review skipped: ${result.aiError}
+`));
+  else if (result.aiStatus === "unavailable")
     console.log(import_picocolors.default.yellow("AI review skipped: BharatCode was busy or unreachable. Try again in a minute.\n"));
   else if (result.aiStatus === "partial")
     console.log(import_picocolors.default.yellow("Some files were not AI-reviewed because BharatCode was busy.\n"));
