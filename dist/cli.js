@@ -35336,7 +35336,7 @@ ${await explainChange(files, {}, llm, config2)}
 }
 
 // src/cli/index.ts
-var version2 = true ? "1.0.0" : "0.0.0-dev";
+var version2 = true ? "1.0.1" : "0.0.0-dev";
 var program2 = new Command().name("nazar").description("\u{1F441}  Free AI code review for every Indian developer, powered by BharatCode.").version(version2);
 var diffOptions = (cmd) => cmd.option("--staged", "only staged changes").option("--base <ref>", "compare against a branch or commit (e.g. main)").option("--model <id>", "BharatCode model id").option("--lang <lang>", "en | hinglish").option("-v, --verbose", "show debug output");
 diffOptions(

@@ -54,6 +54,29 @@ function toReviewComment(f: Finding) {
   };
 }
 
+/** Every inline comment ends with this signature; its first line identifies the finding. */
+const INLINE_SIGNATURE = '<sub>👁️ Nazar';
+const headline = (body: string) => body.split('\n')[0]!.trim();
+
+export interface ExistingComment {
+  path: string;
+  line?: number | null;
+  original_line?: number | null;
+  body: string;
+}
+
+/** Drops findings Nazar already posted on this PR (re-runs, `@nazar review`), matched by file, line and headline. */
+export function filterAlreadyPosted(findings: Finding[], existing: ExistingComment[]): Finding[] {
+  const seen = new Set(
+    existing
+      .filter((c) => c.body.includes(INLINE_SIGNATURE))
+      .map((c) => `${c.path}:${c.line ?? c.original_line}:${headline(c.body)}`),
+  );
+  return findings.filter(
+    (f) => !seen.has(`${f.path}:${f.endLine ?? f.line}:${headline(renderInlineComment(f))}`),
+  );
+}
+
 export interface ReviewPostResult {
   posted: Finding[];
   orphaned: Finding[];
@@ -71,6 +94,20 @@ export async function postReview(
   findings: Finding[],
   log: Logger,
 ): Promise<ReviewPostResult> {
+  if (findings.length === 0) return { posted: [], orphaned: [] };
+  try {
+    const existing = await octokit.paginate(octokit.rest.pulls.listReviewComments, {
+      ...r,
+      pull_number: pullNumber,
+      per_page: 100,
+    });
+    const fresh = filterAlreadyPosted(findings, existing);
+    if (fresh.length < findings.length)
+      log.info(`Skipping ${findings.length - fresh.length} comment(s) already posted.`);
+    findings = fresh;
+  } catch (err) {
+    log.debug(`Could not list existing review comments: ${(err as Error).message}`);
+  }
   if (findings.length === 0) return { posted: [], orphaned: [] };
   const body = `👁️ **Nazar** found ${findings.length} issue${findings.length === 1 ? '' : 's'} worth a look. Details are inline; the summary comment has the full picture.`;
   try {

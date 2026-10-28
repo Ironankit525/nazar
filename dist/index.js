@@ -56093,7 +56093,31 @@ function toReviewComment(f) {
     body: renderInlineComment(f)
   };
 }
+var INLINE_SIGNATURE = "<sub>\u{1F441}\uFE0F Nazar";
+var headline = (body) => body.split("\n")[0].trim();
+function filterAlreadyPosted(findings, existing) {
+  const seen = new Set(
+    existing.filter((c) => c.body.includes(INLINE_SIGNATURE)).map((c) => `${c.path}:${c.line ?? c.original_line}:${headline(c.body)}`)
+  );
+  return findings.filter(
+    (f) => !seen.has(`${f.path}:${f.endLine ?? f.line}:${headline(renderInlineComment(f))}`)
+  );
+}
 async function postReview(octokit, r, pullNumber, commitId, findings, log2) {
+  if (findings.length === 0) return { posted: [], orphaned: [] };
+  try {
+    const existing = await octokit.paginate(octokit.rest.pulls.listReviewComments, {
+      ...r,
+      pull_number: pullNumber,
+      per_page: 100
+    });
+    const fresh = filterAlreadyPosted(findings, existing);
+    if (fresh.length < findings.length)
+      log2.info(`Skipping ${findings.length - fresh.length} comment(s) already posted.`);
+    findings = fresh;
+  } catch (err) {
+    log2.debug(`Could not list existing review comments: ${err.message}`);
+  }
   if (findings.length === 0) return { posted: [], orphaned: [] };
   const body = `\u{1F441}\uFE0F **Nazar** found ${findings.length} issue${findings.length === 1 ? "" : "s"} worth a look. Details are inline; the summary comment has the full picture.`;
   try {

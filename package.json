@@ -1,6 +1,6 @@
 {
   "name": "nazar-review",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Free AI code review for every Indian developer. GitHub Action + CLI, powered by BharatCode.",
   "license": "MIT",
   "type": "module",
