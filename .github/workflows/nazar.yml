@@ -13,7 +13,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: nazar-${{ github.event.pull_request.number || github.event.issue.number }}
+  group: nazar-${{ github.event_name == 'issue_comment' && format('comment-{0}', github.event.comment.id) || github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
