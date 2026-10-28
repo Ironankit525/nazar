@@ -1,4 +1,92 @@
-Project: Nazar - free AI code review for every Indian developer
-Track: Coding & developer tools
-Built on: BharatCode model API (qwen-3.8-27b)
-Repository: https://github.com/Ironankit525/nazar
+BharatCode Build League - Round 1 submission
+==============================================
+
+Project:   Nazar - free AI code review for every Indian developer
+Track:     Coding & developer tools
+Builder:   Ankit Kumar (github.com/Ironankit525)
+Repo:      https://github.com/Ironankit525/nazar
+License:   MIT
+
+WHAT IT IS
+----------
+Nazar ("a watchful eye") is an open-source AI code reviewer. It comes as a
+GitHub Action (one YAML file) and a CLI (npx nazar-review). It reviews every
+pull request and every push, posts inline comments with one-click fixes, and
+stops developers from leaking API keys.
+
+AI code review tools usually cost $15-30 per developer per month. Nazar runs on
+BharatCode's flat-rate API (free for verified students) and is self-hosted, so
+any student or small team can use it for zero dollars.
+
+WHERE TO SEE IT
+---------------
+Live demo PRs:   https://github.com/Ironankit525/nazar-playground/pulls
+                 (SQL injection, leaked key, missing await, Hinglish review,
+                  and a clean refactor that correctly gets zero comments)
+Marketplace:     https://github.com/marketplace/actions/nazar-ai-code-review
+npm (CLI):       https://www.npmjs.com/package/nazar-review
+
+FEATURES
+--------
+- Finds real bugs and security holes (injection, path traversal, missing await,
+  null access, swallowed errors...). No style nitpicks.
+- One-click fixes via GitHub "suggestion" blocks.
+- Two-pass review: a verifier pass must approve every finding before it is posted.
+- Deterministic secret scanner (no AI, so no hallucinations): GitHub, OpenAI,
+  AWS, Google, Razorpay and Stripe keys, BharatCode bc_live_ keys, DB passwords,
+  committed .env files.
+- PR summary with risk level and per-file walkthrough, kept in one comment
+  that updates instead of spamming.
+- Push mode, for students who push straight to main without opening PRs.
+- Hinglish mode (language: hinglish).
+- "@nazar explain" and "@nazar review" commands in PR comments.
+- Build League helper: warns when BharatCode.txt is missing, and
+  "npx nazar-review check" tests submission readiness, including secrets
+  hidden in git history.
+
+HOW IT USES THE BHARATCODE API
+------------------------------
+- Endpoint: https://bharatcode.ai/api/model/v1/chat/completions (OpenAI-compatible)
+- Model:    qwen-3.8-27b by default (configurable, e.g. deepseek-v4.1-flash)
+- Calls per review: reviewer -> verifier -> summarizer, all using strict
+  JSON-schema structured output.
+- Every user brings their own key (stored as a GitHub secret). There is no
+  shared backend.
+- Built for shared capacity: retries 503 "busy" responses with exponential
+  backoff and jitter, respects Retry-After, has per-request timeouts and an
+  overall time budget, and handles truncated output.
+- If the server rejects structured output or reasoning parameters, it falls
+  back to asking for JSON in the prompt.
+- 401/402 responses get a clear "verify your student email / subscribe"
+  message instead of a vague failure.
+- If BharatCode is unavailable, the non-AI checks still run, and Nazar never
+  breaks a user's CI.
+
+How a 27B open model produces reliable reviews:
+- Every diff line is numbered, and findings on lines that are not in the diff
+  are discarded.
+- Model output is validated with zod and repaired with jsonrepair when needed.
+- The verifier pass must explicitly keep each finding.
+- Duplicates are removed and results are capped per review.
+
+RESULTS (eval suite in evals/, qwen-3.8-27b on BharatCode, 29 Oct 2026)
+---------------------------------------------------------------------
+- Planted bugs caught:    9 / 9, all on the correct line
+- False positives:        0
+- Comments on clean code: 0
+- Extra real issues:      2 (genuine bugs not in the answer key)
+Reproduce: BHARATCODE_API_KEY=... npm run eval
+
+TRY IT IN 2 MINUTES
+-------------------
+1. Get a BharatCode API key at https://bharatcode.ai/account
+2. In your repo:  npx nazar-review init
+3. Add the key:   gh secret set BHARATCODE_API_KEY
+4. Push and open a pull request.
+
+ENGINEERING
+-----------
+TypeScript. src/core is pure review logic with no GitHub dependency;
+src/action and src/cli wrap it. 82 unit tests (with a fake LLM, so no network
+is needed), CI that checks the bundled dist/ is up to date, and Nazar reviews
+its own pull requests. Design notes: docs/architecture.md
