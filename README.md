@@ -2,7 +2,7 @@
 
 <img src="docs/assets/logo.svg" width="96" alt="Nazar logo" />
 
-# Nazar 👁️
+# Bharatcode X Nazar 👁️
 
 **Free AI code review for every Indian developer.**
 One YAML file. Zero dollars. Powered by [BharatCode](https://bharatcode.ai).
